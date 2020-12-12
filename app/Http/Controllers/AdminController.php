@@ -90,4 +90,19 @@ class AdminController extends Controller
     {
         return Category::orderByDesc('id')->get();
     }
+
+    public function editCategory(Request $request)
+    {
+           // validate request
+           $request->validate([
+            'categoryName' => 'required',
+            'iconImage' => 'required',
+            'id' => 'required'
+        ]);
+        return Category::where('id', $request->id)->update([
+            'categoryName' => $request->categoryName,
+            'iconImage' => $request->iconImage
+        ]);
+        
+    }
 }

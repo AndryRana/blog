@@ -9,11 +9,16 @@ import methods from "./components/pages/basic/methods.vue";
 import home from "./components/pages/home.vue";
 import tags from "./admin/pages/tags.vue";
 import category from "./admin/pages/category.vue";
+import usecom from "./vuex/usecom";
 
 const routes = [
 
     // Projects routes...
 
+    {
+        path: "/testvuex",
+        component: usecom,
+    },
     {
         path: "/",
         component: home,
