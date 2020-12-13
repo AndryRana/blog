@@ -218,7 +218,7 @@
 
 <script>
 import deleteModal from "../components/deleteModal";
-import {mapGetters} from 'vuex'
+import { mapGetters } from "vuex";
 export default {
     data() {
         return {
@@ -255,7 +255,7 @@ export default {
                 return this.e("Category name is required");
             if (this.data.iconImage.trim() == "")
                 return this.e("Icon image is required");
-            this.data.iconImage = `/uploads/${this.data.iconImage}`;
+            this.data.iconImage = `${this.data.iconImage}`;
             const res = await this.callApi(
                 "post",
                 "app/create_category",
@@ -326,14 +326,15 @@ export default {
         //     this.showDeleteModal = false;
         // },
         showDeletingModal(category, i) {
+            this.deletingIndex = i;
             const deleteModalObj = {
                 showDeleteModal: true,
                 deleteUrl: "app/delete_category",
                 data: category,
                 deletingIndex: i,
                 isDeleted: false
-            }
-            this.$store.commit('setDeletingModalObj',deleteModalObj)
+            };
+            this.$store.commit("setDeletingModalObj", deleteModalObj);
             // this.deleteItem = category;
             // this.deletingIndex = i;
             // this.showDeleteModal = true;
@@ -406,6 +407,18 @@ export default {
             this.categoryLists = res.data;
         } else {
             this.swr();
+        }
+    },
+    computed: {
+        ...mapGetters(["getDeleteModalObj"])
+    },
+
+    watch: {
+        getDeleteModalObj(obj) {
+            console.log(obj);
+            if (obj.isDeleted) {
+                this.categoryLists.splice(this.deletingIndex, 1);
+            }
         }
     }
 };

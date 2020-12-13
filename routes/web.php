@@ -23,6 +23,10 @@ Route::post('app/delete_image',[AdminController::class, 'deleteImage']);
 Route::post('app/create_category',[AdminController::class, 'addCategory']);
 Route::get('app/get_category',[AdminController::class, 'getCategory']);
 Route::post('app/edit_category',[AdminController::class, 'editCategory']);
+Route::post('app/delete_category',[AdminController::class, 'deleteCategory']);
+Route::post('app/create_user',[AdminController::class, 'createUser']);
+Route::get('app/get_users',[AdminController::class, 'getUsers']);
+
 
 Route::get('/', function () {
     return view('home');

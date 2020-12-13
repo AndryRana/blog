@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -60,13 +61,15 @@ class AdminController extends Controller
     public function deleteImage(Request $request)
     {
         $fileName = $request->imageName;
-        $this->deleteFileFromServer($fileName);
+        $this->deleteFileFromServer($fileName, false);
         return 'done';
     }
 
-    public function deleteFileFromServer($fileName)
+    public function deleteFileFromServer($fileName, $hasFullPath = false)
     {
-        $filePath = public_path().'/uploads/'.$fileName;
+        if(!$hasFullPath){
+            $filePath = public_path().'/uploads/'.$fileName;
+        }
         if(file_exists($filePath)){
             @unlink($filePath);
         }
@@ -104,5 +107,40 @@ class AdminController extends Controller
             'iconImage' => $request->iconImage
         ]);
         
+    }
+
+    public function deleteCategory(Request $request)
+    {
+        // first delete the original file from the server
+        $this->deleteFileFromServer($request->iconImage);
+         // validate request
+         $request->validate([
+            'id' => 'required'
+        ]);
+        return Category::where('id', $request->id)->delete();
+    }
+
+    public function createUser(Request $request)
+    {
+        // validate request
+        $request->validate([
+            'fullName' => 'required',
+            'email' => 'bail|required|email',
+            'password' => 'bail|required|min:6',
+            'userType' => 'required',
+        ]);
+        $password = bcrypt($request->password);
+        $user = User::create([
+            'fullName' =>$request->fullName,
+            'email' =>$request->email,
+            'password' =>$password,
+            'userType' =>$request->userType,
+        ]);
+        return $user;
+    }
+
+    public function getUsers()
+    {
+        return User::where('userType', '!=', 'User')->get();
     }
 }

@@ -12,16 +12,21 @@
                 <span>Delete confirmation</span>
             </p>
             <div style="text-align: center">
-                <p>Are you sure you want to delete category?</p>
+                <p>Are you sure you want to delete tag ?</p>
             </div>
             <div slot="footer">
                 <Button
+                    type="default"
+                    size="large"
+                    @click="closeModal"
+                    >Close</Button
+                >
+                <Button
                     type="error"
                     size="large"
-                    long
                     :loading="isDeleing"
                     :disabled="isDeleing"
-                    @click="deleteCategory"
+                    @click="deleteTag"
                     >Delete</Button
                 >
             </div>
@@ -38,7 +43,7 @@ export default {
         };
     },
     methods: {
-        async deleteCategory() {
+        async deleteTag() {
             this.isDeleing = true;
             const res = await this.callApi(
                 "post",
@@ -46,13 +51,16 @@ export default {
                 this.getDeleteModalObj.data
             );
             if (res.status === 200) {
-                this.s("category has been deleted successfully!");
+                this.s("Tag has been deleted successfully!");
                 this.$store.commit("setDeleteModal", true);
             } else {
                 this.swr();
                 this.$store.commit("setDeleteModal", false);
             }
             this.isDeleing = false
+        },
+        closeModal(){
+             this.$store.commit("setDeleteModal", false);
         }
     },
     computed: {

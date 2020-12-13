@@ -9,7 +9,7 @@
                     <p class="_title0">
                         Tags
                         <Button @click="addModal = true"
-                            ><Icon type="md-add-circle" /> Add tag</Button
+                            ><Icon type="md-add-circle" /> Add Admin</Button
                         >
                     </p>
 
@@ -18,7 +18,9 @@
                             <!-- TABLE TITLE -->
                             <tr>
                                 <th>ID</th>
-                                <th>Tag name</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>User type</th>
                                 <th>Created at</th>
                                 <th>Action</th>
                             </tr>
@@ -26,27 +28,31 @@
 
                             <!-- ITEMS -->
                             <tr
-                                v-for="(tag, i) in tags"
+                                v-for="(user, i) in users"
                                 :key="i"
-                                v-if="tags.length"
+                                v-if="users.length"
                             >
-                                <td>{{ tag.id }}</td>
+                                <td>{{ user.id }}</td>
                                 <td class="_table_name">
-                                    {{ tag.tagName }}
+                                    {{ user.fullName }}
                                 </td>
-                                <td>{{ tag.created_at }}</td>
+                                <td >
+                                    {{ user.email }}
+                                </td>
+                                <td>{{ user.userType }}</td>
+                                <td>{{ user.created_at }}</td>
                                 <td>
                                     <Button
                                         type="info"
                                         size="small"
-                                        @click="showEditModal(tag, i)"
+                                        @click="showEditModal(user, i)"
                                         >Edit</Button
                                     >
                                     <Button
                                         type="error"
                                         size="small"
-                                        @click="showDeletingModal(tag, i)"
-                                        :loading="tag.isDeleting"
+                                        @click="showDeletingModal(user, i)"
+                                        :loading="user.isDeleting"
                                         >Delete</Button
                                     >
                                 </td>
@@ -59,11 +65,25 @@
                 <!-- tag adding modal -->
                 <Modal
                     v-model="addModal"
-                    title="Add tag"
+                    title="Add admin"
                     :mask-closable="false"
                     :closable="false"
                 >
-                    <Input v-model="data.tagName" placeholder="Add tag name" />
+                    <div class="space">
+                        <Input type="text" v-model="data.fullName"  placeholder="Full name" />
+                    </div>
+                    <div class="space">
+                        <Input type="email" v-model="data.email" placeholder="Email" />
+                    </div>
+                    <div class="space">
+                        <Input type="password" v-model="data.password" placeholder="Password" />
+                    </div>
+                    <div class="space">
+                        <Select v-model="data.userType"  placeholder='Select admin type'>
+                            <Option value="Admin">Admin</Option>
+                            <Option value="Editor">Editor</Option>
+                        </Select>
+                    </div>
 
                     <div slot="footer">
                         <Button type="default" @click="addModal = false"
@@ -71,11 +91,11 @@
                         >
                         <Button
                             type="primary"
-                            @click="addTag"
+                            @click="addAdmin"
                             :disabled="isAdding"
                             :loading="isAdding"
                         >
-                            {{ isAdding ? "Adding..." : "Add tag" }}</Button
+                            {{ isAdding ? "Adding..." : "Add admin" }}</Button
                         >
                     </div>
                 </Modal>
@@ -87,10 +107,7 @@
                     :mask-closable="false"
                     :closable="false"
                 >
-                    <Input
-                        v-model="editData.tagName"
-                        placeholder=""
-                    />
+                    <Input v-model="editData.tagName" placeholder="" />
 
                     <div slot="footer">
                         <Button type="default" @click="editModal = false"
@@ -143,12 +160,15 @@ export default {
     data() {
         return {
             data: {
-                tagName: ""
+                fullName: '',
+                email: '',
+                password: '',
+                userType: 'Admin'
             },
             addModal: false,
             editModal: false,
             isAdding: false,
-            tags: [],
+            users: [],
             editData: {
                 tagName: ""
             },
@@ -156,22 +176,36 @@ export default {
             showDeleteModal: false,
             isDeleing: false,
             deleteItem: {},
-            deletingIndex: -1,
+            deletingIndex: -1
         };
     },
 
     methods: {
-        async addTag() {
-            if (this.data.tagName.trim() == "")
-                return this.e("tag name is required");
-            const res = await this.callApi("post", "app/create_tag", this.data);
+        async addAdmin() {
+            if (this.data.fullName.trim() == "")
+                return this.e("Full name is required");
+            if (this.data.email.trim() == "")
+                return this.e("Email is required");
+            if (this.data.password.trim() == "")
+                return this.e("Password is required");
+            if (this.data.userType.trim() == "")
+                return this.e("User type is required");
+            const res = await this.callApi("post", "app/create_user", this.data);
             if (res.status === 201) {
                 this.tags.unshift(res.data);
-                this.s("Tag has been added successfully!");
+                this.s("Admin user has been added successfully!");
                 this.addModal = false;
-                this.data.tagName = "";
+                this.data.fullName = "";
+                this.data.email = "";
+                this.data.password = "";
             } else {
-                this.swr();
+                if(res.status==422){
+                    for(let i in res.data.errors){
+                        this.e( res.data.errors[i][0])
+                    }
+                }else{
+                    this.swr();
+                }
             }
         },
         async editTag() {
@@ -231,7 +265,7 @@ export default {
                 data: tag,
                 deletingIndex: i,
                 isDeleted: false
-            }
+            };
             this.$store.commit("setDeletingModalObj", deleteModalObj);
             console.log("delete method called");
             // this.deleteItem = tag;
@@ -241,23 +275,23 @@ export default {
     },
 
     async created() {
-        const res = await this.callApi("get", "/app/get_tags");
+        const res = await this.callApi("get", "/app/get_users");
         if (res.status === 200) {
-            this.tags = res.data;
+            this.users = res.data;
         } else {
             this.swr();
         }
     },
 
     computed: {
-        ...mapGetters(['getDeleteModalObj'])
+        ...mapGetters(["getDeleteModalObj"])
     },
 
     watch: {
         getDeleteModalObj(obj) {
             console.log(obj);
-            if(obj.isDeleted){
-                this.tags.splice(this.deletingIndex, 1)
+            if (obj.isDeleted) {
+                this.tags.splice(this.deletingIndex, 1);
             }
         }
     }
