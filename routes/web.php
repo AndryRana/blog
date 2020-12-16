@@ -29,6 +29,12 @@ Route::prefix('app')->middleware([AdminCheck::class])->group(function(){
     Route::get('/get_users',[AdminController::class, 'getUsers']);
     Route::post('/edit_user',[AdminController::class, 'editUser']);
     Route::post('/admin_login',[AdminController::class, 'adminLogin']);
+    
+    // Roles routes
+    Route::post('/create_role', [AdminController::class, 'addRole']);
+    Route::get('/get_roles',[AdminController::class, 'getRoles']);
+    Route::post('/edit_role',[AdminController::class, 'editRole']);
+    Route::post('/assign_roles',[AdminController::class, 'assignRole']);
 });
 
 Route::get('/logout', [AdminController::class, 'logout']);
@@ -39,7 +45,7 @@ Route::get('{slug}', [AdminController::class, 'index']);
 //     return view('home');
 // });
 
-// Auth::routes();
+Auth::routes();
 
 // Route::any('{slug}', function () {
 //     return view('home');

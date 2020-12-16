@@ -3173,3 +3173,7 @@ p {
   cursor: pointer;
   margin: 0 2px;
 }
+
+.center_button{
+  margin-top: 20px;
+}

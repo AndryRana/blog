@@ -19,7 +19,7 @@ class CreateBlogsTable extends Migration
             $table->string('post');
             $table->string('post_excerpt');
             $table->string('slug')->unique();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id');
             $table->string('featuredImage');
             $table->string('metaDescription');
             $table->integer('views')->default(0);

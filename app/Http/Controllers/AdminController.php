@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Role;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -159,14 +161,14 @@ class AdminController extends Controller
             'fullName' => 'required',
             'email' => 'bail|required|email|unique:users',
             'password' => 'bail|required|min:6',
-            'userType' => 'required',
+            'role_id' => 'required',
         ]);
         $password = bcrypt($request->password);
         $user = User::create([
             'fullName' => $request->fullName,
             'email' => $request->email,
             'password' => $password,
-            'userType' => $request->userType,
+            'role_id' => $request->role_id,
         ]);
         return $user;
     }
@@ -178,12 +180,12 @@ class AdminController extends Controller
             'fullName' => 'required',
             'email' => 'bail|required|email|unique:users,email,$request->id',
             'password' => 'min:6',
-            'userType' => 'required',
+            'role_id' => 'required',
         ]);
         $data = [
             'fullName' => $request->fullName,
             'email' => $request->email,
-            'userType' => $request->userType,
+            'role_id' => $request->role_id,
         ];
         if ($request->password) {
             $password = bcrypt($request->password);
@@ -196,7 +198,7 @@ class AdminController extends Controller
 
     public function getUsers()
     {
-        return User::where('userType', '!=', 'User')->get();
+        return User::get();
     }
 
 
@@ -209,7 +211,7 @@ class AdminController extends Controller
         ]);
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
-            if ($user->userType == 'User') {
+            if ($user->role->isAdmin == 0) {
                 Auth::logout();
                 return response()->json([
                     'msg' => 'Incorrect login details',
@@ -226,4 +228,47 @@ class AdminController extends Controller
             ], 401);
         }
     }
+
+
+    public function addRole(Request $request)
+    {
+        // validate request
+        $request->validate([
+            'roleName' => 'required',
+        ]);   
+        $role = Role::create([
+            'roleName'=> $request->roleName
+        ]);
+    }
+
+    public function editRole(Request $request)
+    {
+        // validate request
+        $request->validate([
+            'roleName' => 'required',
+            'id' => 'required'
+        ]);   
+        return Role::where('id', $request->id)->update([
+            'roleName'=> $request->roleName
+        ]);
+    }
+
+    public function getRoles()
+    {
+        return Role::all();
+    }
+
+    public function assignRole(Request $request)
+    {
+         // validate request
+         $request->validate([
+            'permission' => 'required',
+            'id' => 'required'
+        ]);   
+
+        return Role::where('id', $request->id)->update([
+            'permission' => $request->permission
+        ]);
+    }
+
 }

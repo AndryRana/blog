@@ -265,8 +265,8 @@ export default {
                 this.categoryLists.unshift(res.data);
                 this.s("Category has been added successfully!");
                 this.addModal = false;
-                this.data.categoryName = "";
-                this.data.iconImage = "";
+                this.data.categoryName = '';
+                this.data.iconImage = '';
             } else {
                 this.swr();
             }

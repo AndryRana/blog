@@ -23,14 +23,16 @@ class AdminCheck
         
         if (!Auth::check()) {
             return response()->json([
-                'msg' => 'You are not allowed to access this route... '
+                'msg' => 'You are not allowed to access this route... ',
+                'url' => $request->path()
             ], 403);
         }
         $user = Auth::user();
-        if ($user->userType == 'User') {
+        if ($user->role->isAdmin == 0) {
             return response()->json([
                 'msg' => 'You are not allowed to access this route... '
-            ], 402);
+            ], 403);
         }
+        return $next($request);
     }
 }
