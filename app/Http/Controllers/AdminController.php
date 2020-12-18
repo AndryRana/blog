@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Role;
 use App\Models\Tag;
@@ -106,6 +107,23 @@ class AdminController extends Controller
         ]);
         $picName = time() . '.' . $request->file->extension();
         $request->file->move(public_path('uploads'), $picName);
+        return $picName;
+    }
+
+    // Upload Image from editor.js
+    public function uploadEditorImage(Request $request)
+    {
+        // validate request
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,jpg,png',
+        ]);
+        $picName = time() . '.' . $request->image->extension();
+        $request->image->move(public_path('uploads'), $picName);
+        return response()->json([
+            "success" => 1,
+            "file"=> ["url" => "https://blog.test/uploads/$picName"],
+           
+        ]);
         return $picName;
     }
 
@@ -285,5 +303,20 @@ class AdminController extends Controller
         return Role::where('id', $request->id)->update([
             'permission' => $request->permission
         ]);
+    }
+
+    public function slug()
+    {
+        $title = 'this is a nice title';
+        Blog::create([
+            'title' => $title,
+            'post' => 'some post',
+            'post_excerpt' => 'excerpt',
+            'user_id' => 1,
+            'metaDescription' => 'Blog title',
+            'metaDescription' => 'Blog post'
+
+        ]);
+        return $title;
     }
 }

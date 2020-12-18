@@ -48,7 +48,10 @@ export default {
                 }
             },
             initData: null,
-            data: {}
+            data: {
+
+            },
+            articleHTML: ''
         };
     },
 
@@ -70,14 +73,67 @@ export default {
                 this.swr();
             }
         },
-        onSave(response){
-            console.log(response)
+        async onSave(response){
+            // console.log(response)
+            var data = response
+            //this.data.jsonData = JSON.stringify(data)
+            await this.outputHtml(data.blocks)
+            console.log(this.articleHTML)
+
         },
         async save(){
             this.$refs.editor.save()
+        },
+        outputHtml(articleObj){
+		   articleObj.map(obj => {
+				switch (obj.type) {
+				case 'paragraph':
+					this.articleHTML += this.makeParagraph(obj);
+					break;
+				case 'image':
+					this.articleHTML += this.makeImage(obj);
+					break;
+				case 'header':
+					this.articleHTML += this.makeHeader(obj);
+					break;
+				case 'raw':
+					this.articleHTML += `<div class="ce-block">
+					<div class="ce-block__content">
+					<div class="ce-code">
+						<code>${obj.data.html}</code>
+					</div>
+					</div>
+				</div>\n`;
+					break;
+				case 'code':
+					this.articleHTML += this.makeCode(obj);
+					break;
+				case 'list':
+					this.articleHTML += this.makeList(obj)
+					break;
+				case "quote":
+					this.articleHTML += this.makeQuote(obj)
+					break;
+				case "warning":
+					this.articleHTML += this.makeWarning(obj)
+					break;
+				case "checklist":
+					this.articleHTML += this.makeChecklist(obj)
+					break;
+				case "embed":
+					this.articleHTML += this.makeEmbed(obj)
+					break;
+				case 'delimeter':
+					this.articleHTML += this.makeDelimeter(obj);
+					break;
+				default:
+					return '';
+				}
+            });
         }
-    },
-};
+
+    }
+}
 </script>
 
 <style>
