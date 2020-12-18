@@ -15,28 +15,44 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         //  first check if you are logged in and admin user ...
-        if(!Auth::check() && $request->path() != 'adminlogin') {
+        if (!Auth::check() && $request->path() != 'adminlogin') {
             return redirect('/adminlogin');
         }
 
-        if(!Auth::check() && $request->path() == 'adminlogin'){
+        if (!Auth::check() && $request->path() == 'adminlogin') {
             return view('home');
         }
         // You are already logged in... so check if you are admin user ...
         $user =  Auth::user();
-        if($user->userType == 'User'){
+        if ($user->userType == 'User') {
             return redirect('/adminlogin');
         }
 
-        if($request->path() == 'adminlogin'){
+        if ($request->path() == 'adminlogin') {
             return redirect('/');
         }
-        
 
-        return view('home');
-        // return $request->path();
+        return $this->checkForPermission($user, $request);
     }
 
+    public function checkForPermission($user, $request)
+    {
+        $permission = json_decode($user->role->permission);
+        $hasPermission = false;
+        if(!$permission)  return view('home');
+        foreach ($permission as $p) {
+            if ($p->name == $request->path()) {
+                if ($p->read) {
+                    $hasPermission = true;
+                }
+            }
+        }
+        if ($hasPermission) return view('home');
+        return view('notfound');
+
+        // echo $permission[0]->name;
+        // echo $request->path();
+    }
 
     public function logout()
     {
@@ -235,9 +251,9 @@ class AdminController extends Controller
         // validate request
         $request->validate([
             'roleName' => 'required',
-        ]);   
-        $role = Role::create([
-            'roleName'=> $request->roleName
+        ]);
+        return Role::create([
+            'roleName' => $request->roleName
         ]);
     }
 
@@ -247,9 +263,9 @@ class AdminController extends Controller
         $request->validate([
             'roleName' => 'required',
             'id' => 'required'
-        ]);   
+        ]);
         return Role::where('id', $request->id)->update([
-            'roleName'=> $request->roleName
+            'roleName' => $request->roleName
         ]);
     }
 
@@ -260,15 +276,14 @@ class AdminController extends Controller
 
     public function assignRole(Request $request)
     {
-         // validate request
-         $request->validate([
+        // validate request
+        $request->validate([
             'permission' => 'required',
             'id' => 'required'
-        ]);   
+        ]);
 
         return Role::where('id', $request->id)->update([
             'permission' => $request->permission
         ]);
     }
-
 }

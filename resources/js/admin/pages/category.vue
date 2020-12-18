@@ -9,7 +9,7 @@
                     <p class="_title0">
                         Category
                         <Button @click="addModal = true"
-                            ><Icon type="md-add-circle" /> Add category</Button
+                            v-if="isWritePermitted"><Icon type="md-add-circle" /> Add category</Button
                         >
                     </p>
 
@@ -44,6 +44,7 @@
                                         type="info"
                                         size="small"
                                         @click="showEditModal(category, i)"
+                                         v-if="isUpdatePermitted"
                                         >Edit</Button
                                     >
                                     <Button
@@ -51,6 +52,7 @@
                                         size="small"
                                         @click="showDeletingModal(category, i)"
                                         :loading="category.isDeleting"
+                                         v-if="isDeletePermitted"
                                         >Delete</Button
                                     >
                                 </td>

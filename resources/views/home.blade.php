@@ -3,7 +3,7 @@
 @section('content')
 <div>
     @if (Auth::check())
-        <mainpage-component :user="{{ Auth::user() }}"></mainpage-component>
+        <mainpage-component :user="{{ Auth::user() }}" :permission="{{ Auth::user()->role->permission }}"></mainpage-component>
     @else
         <mainpage-component :user="false"></mainpage-component>
     @endif

@@ -25,6 +25,7 @@
     },
     "dependencies": {
         "view-design": "^4.4.0",
+        "vue-editor-js": "^1.1.1",
         "vue-router": "^3.4.9",
         "vuex": "^3.6.0"
     }

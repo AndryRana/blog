@@ -8,7 +8,7 @@
                 >
                     <p class="_title0">
                         Role Management
-                        <Button @click="addModal = true"
+                        <Button @click="addModal = true"  v-if="isWritePermitted"
                             ><Icon type="md-add-circle" /> Add a new role</Button
                         >
                     </p>
@@ -40,6 +40,7 @@
                                         type="info"
                                         size="small"
                                         @click="showEditModal(role, i)"
+                                         v-if="isUpdatePermitted"
                                         >Edit</Button
                                     >
                                     <Button
@@ -47,6 +48,7 @@
                                         size="small"
                                         @click="showDeletingModal(role, i)"
                                         :loading="role.isDeleting"
+                                         v-if="isDeletePermitted"
                                         >Delete</Button
                                     >
                                 </td>
